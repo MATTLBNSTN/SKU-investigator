@@ -1,11 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { createApi } from '../actions';
+import { createApi, updateApi, deleteApi } from '@/app/dashboard/actions'; // Adjust path as needed
 import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-// Helper type for our builder state
+export type ApiData = {
+    id?: string;
+    name: string;
+    slug: string;
+    description: string;
+    schema_config: {
+        input_inputs: string[];
+        output_schema: {
+            properties: Record<string, any>;
+        }
+    }
+}
+
 type Field = {
     id: string;
     name: string;
@@ -13,12 +26,30 @@ type Field = {
     description: string;
 };
 
-export default function NewApiPage() {
+export default function ApiForm({ initialData }: { initialData?: ApiData }) {
+    const router = useRouter();
+    const isEditing = !!initialData;
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [fields, setFields] = useState<Field[]>([
-        { id: '1', name: 'product_name', type: 'string', description: 'The full name of the product' },
-        { id: '2', name: 'price', type: 'number', description: 'Current market price' }
-    ]);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Initial fields logic
+    const getInitialFields = (): Field[] => {
+        if (!initialData?.schema_config?.output_schema?.properties) {
+            return [
+                { id: '1', name: 'product_name', type: 'string', description: 'The full name of the product' },
+                { id: '2', name: 'price', type: 'number', description: 'Current market price' }
+            ];
+        }
+
+        return Object.entries(initialData.schema_config.output_schema.properties).map(([key, value]: [string, any]) => ({
+            id: crypto.randomUUID(),
+            name: key,
+            type: value.type === 'array' ? 'array' : value.type || 'string',
+            description: value.description || ''
+        }));
+    };
+
+    const [fields, setFields] = useState<Field[]>(getInitialFields());
     const [error, setError] = useState<string | null>(null);
 
     const addField = () => {
@@ -38,6 +69,20 @@ export default function NewApiPage() {
         setFields(fields.map(f => f.id === id ? { ...f, [key]: value } : f));
     };
 
+    const handleDelete = async () => {
+        if (!initialData?.id) return;
+        if (!confirm("Are you sure you want to delete this API? This cannot be undone.")) return;
+
+        setIsDeleting(true);
+        try {
+            await deleteApi(initialData.id);
+            // Redirect handled by server action
+        } catch (err: any) {
+            alert("Failed to delete: " + err.message);
+            setIsDeleting(false);
+        }
+    };
+
     const handleSubmit = async (formData: FormData) => {
         setIsSubmitting(true);
         setError(null);
@@ -50,7 +95,7 @@ export default function NewApiPage() {
             if (f.type === 'array') {
                 outputProperties[f.name] = {
                     type: 'array',
-                    items: { type: 'string' }, // Default to array of strings for PoC
+                    items: { type: 'string' }, // Default to array of strings
                     description: f.description
                 };
             } else {
@@ -62,7 +107,7 @@ export default function NewApiPage() {
         });
 
         const schemaConfig = {
-            input_inputs: ["sku"], // Hardcoded requirement
+            input_inputs: ["sku"],
             output_schema: {
                 type: "object",
                 properties: outputProperties
@@ -72,7 +117,11 @@ export default function NewApiPage() {
         formData.set('schema_config', JSON.stringify(schemaConfig));
 
         try {
-            await createApi(formData);
+            if (isEditing && initialData?.id) {
+                await updateApi(initialData.id, formData);
+            } else {
+                await createApi(formData);
+            }
         } catch (err: any) {
             setError(err.message);
             setIsSubmitting(false);
@@ -87,9 +136,24 @@ export default function NewApiPage() {
             </Link>
 
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-                <div className="border-b border-slate-100 bg-slate-50/50 p-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Create New Gravity API</h1>
-                    <p className="text-slate-500 mt-2">Configure how Gemini extracts data from the web for your organization.</p>
+                <div className="border-b border-slate-100 bg-slate-50/50 p-8 flex justify-between items-start">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                            {isEditing ? `Edit: ${initialData.name}` : 'Create New Gravity API'}
+                        </h1>
+                        <p className="text-slate-500 mt-2">Configure how Gemini extracts data from the web for your organization.</p>
+                    </div>
+                    {isEditing && (
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            {isDeleting ? 'Deleting...' : 'Delete API'}
+                        </button>
+                    )}
                 </div>
 
                 <form action={handleSubmit} className="p-8 space-y-10">
@@ -102,6 +166,7 @@ export default function NewApiPage() {
                                 <input
                                     name="name"
                                     required
+                                    defaultValue={initialData?.name}
                                     placeholder="e.g. Sneaker Scraper"
                                     className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition shadow-sm"
                                 />
@@ -115,8 +180,10 @@ export default function NewApiPage() {
                                     <input
                                         name="slug"
                                         required
+                                        disabled={isEditing} // Slug usually should not be changed to prevent link rot
+                                        defaultValue={initialData?.slug}
                                         placeholder="get-sneaker-info"
-                                        className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition font-mono text-sm"
+                                        className={`w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition font-mono text-sm ${isEditing ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                             </div>
@@ -126,6 +193,7 @@ export default function NewApiPage() {
                             <label className="text-sm font-semibold text-slate-900 uppercase tracking-wider text-xs">Description</label>
                             <textarea
                                 name="description"
+                                defaultValue={initialData?.description}
                                 placeholder="Describe specifically what this API matches (e.g. 'Matches Nike SKUs to finding colorways'). This helps the AI understand context."
                                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition h-24 shadow-sm resize-none"
                             />
@@ -226,10 +294,10 @@ export default function NewApiPage() {
                             disabled={isSubmitting}
                             className="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-slate-900/20"
                         >
-                            {isSubmitting ? 'Saving Configuration...' : (
+                            {isSubmitting ? 'Saving...' : (
                                 <>
                                     <Save className="w-4 h-4 mr-2" />
-                                    Create API
+                                    {isEditing ? 'Save Changes' : 'Create API'}
                                 </>
                             )}
                         </button>

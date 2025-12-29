@@ -75,12 +75,16 @@ export async function executeAntiGravityApi({ orgId, apiSlug, payload }: Executi
 
         return parsedData;
 
-    } catch (error) {
-        console.error("Gravity Engine Failure:", error);
+    } catch (error: any) {
+        console.error("Gravity Engine Failure Full Error:", JSON.stringify(error, null, 2));
+        console.error("Gravity Engine Failure Message:", error.message);
+
         await db.query(
             `INSERT INTO execution_logs (api_id, org_id, status, latency_ms) VALUES ($1, $2, 'error', 0)`,
             [apiConfig.id, orgId]
         );
-        throw new Error("Failed to retrieve data from Anti Gravity engine");
+
+        // Propagate the actual error message for debugging purposes
+        throw new Error(`Gravity Engine Error: ${error.message || "Unknown error"}`);
     }
 }

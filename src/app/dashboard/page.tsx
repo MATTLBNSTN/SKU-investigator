@@ -39,12 +39,15 @@ export default async function DashboardPage() {
     const apis = apisRes.rows;
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Your Gravity APIs</h1>
+        <div className="max-w-7xl mx-auto p-8 font-sans">
+            <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
+                <div>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">Welcome to the SKU investigator</h1>
+                    <p className="text-slate-500 mt-2 text-lg">Manage your data extraction endpoints.</p>
+                </div>
                 <Link
                     href="/dashboard/new"
-                    className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition"
+                    className="inline-flex items-center px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition shadow-lg shadow-slate-900/20"
                 >
                     + Create New API
                 </Link>
@@ -52,24 +55,49 @@ export default async function DashboardPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {apis.map((api) => (
-                    <div key={api.id} className="border p-6 rounded-lg shadow-sm hover:shadow-md transition bg-white">
-                        <h2 className="text-xl font-semibold mb-2">{api.name}</h2>
-                        <div className="text-xs font-mono bg-gray-100 p-1 rounded inline-block mb-4">/{api.slug}</div>
-                        <p className="text-gray-600 mb-4 line-clamp-2">{api.description || "No description."}</p>
-                        <div className="flex justify-between items-center mt-auto">
-                            <span className={`text-xs px-2 py-1 rounded-full ${api.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                {api.is_active ? 'Active' : 'Inactive'}
-                            </span>
-                            <Link href={`/dashboard/${api.id}`} className="text-blue-600 hover:underline text-sm">
-                                Manage &rarr;
-                            </Link>
+                    <div key={api.id} className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-200 overflow-hidden flex flex-col h-full">
+                        <div className="p-6 flex flex-col h-full">
+                            <div className="flex justify-between items-start mb-4">
+                                <h2 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{api.name}</h2>
+                                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide ${api.is_active ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                                    {api.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+
+                            <div className="mb-4">
+                                <div className="inline-block bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs font-mono text-slate-600">
+                                    /{api.slug}
+                                </div>
+                            </div>
+
+                            <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
+                                {api.description || "No description provided."}
+                            </p>
+
+                            <div className="pt-4 border-t border-slate-50 mt-auto flex justify-between items-center">
+                                <span className="text-xs text-slate-400">v{api.version}</span>
+                                <Link href={`/dashboard/${api.id}`} className="text-sm font-medium text-slate-700 hover:text-blue-600 hover:underline transition-colors flex items-center">
+                                    Manage API &rarr;
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 ))}
 
                 {apis.length === 0 && (
-                    <div className="col-span-full text-center py-12 border-2 border-dashed rounded-lg text-gray-400">
-                        <p>No APIs defined yet. Create your first one!</p>
+                    <div className="col-span-full flex flex-col items-center justify-center py-16 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                        <div className="p-4 bg-white rounded-full shadow-sm mb-4">
+                            {/* You might want a Lucid icon here if available, defaulting to text */}
+                            <span className="text-2xl">⚡</span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-1">No APIs defined yet</h3>
+                        <p className="text-slate-500 mb-6 text-sm">Create your first schema to start extracting data.</p>
+                        <Link
+                            href="/dashboard/new"
+                            className="text-blue-600 font-medium hover:underline"
+                        >
+                            Create API Configuration
+                        </Link>
                     </div>
                 )}
             </div>
