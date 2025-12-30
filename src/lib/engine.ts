@@ -27,7 +27,7 @@ export async function executeAntiGravityApi({ orgId, apiSlug, payload }: Executi
     const model = genAI.getGenerativeModel({
         model: "gemini-2.0-flash-exp",
         // CRITICAL: This enables the AI to browse the live web
-        tools: [{ googleSearch: {} }]
+        tools: [{ googleSearch: {} } as any]
     });
 
     // 4. Construct the Dynamic Response Schema
@@ -43,16 +43,34 @@ export async function executeAntiGravityApi({ orgId, apiSlug, payload }: Executi
     // 5. Build the Prompt
     // We combine the User's Input (SKU) with their Desired Output requirements
     const prompt = `
-    You are an intelligent product data extraction engine.
-    
-    USER INPUT DATA:
-    ${JSON.stringify(payload)}
-    
-    TASK:
-    1. Use Google Search to find detailed information about the item specified in the input data.
-    2. Look for specific details regarding: ${Object.keys(userDefinedSchema.properties || {}).join(", ")}.
-    3. If an image is found, verify it matches the visual description (color, material).
-    4. Return the data adhering strictly to the JSON schema provided.
+    ### ROLE
+    You are a Master Product Data Steward and Expert Web Researcher. Your goal is to take a sparse product identifier or description, conduct a deep logical retrieval of all known attributes for that product, and map them to a strict destination schema.
+
+    ### INPUT DATA
+    ${JSON.stringify(payload, null, 2)}
+
+    ### INSTRUCTIONS
+
+    **STEP 1: IDENTIFICATION & ENRICHMENT (Internal Monologue)**
+    First, identify the exact product based on the input data.
+    * Use Google Search to find official product pages, retailer listings, and detailed specifications.
+    * Draft a detailed "Product Knowledge Sheet" for this item containing all physical dimensions, technical specs, materials, and category details.
+    * If you are unsure between two variants, identify the most common standard version matching the input.
+
+    **STEP 2: DATA MAPPING**
+    Map the information from your research into the User-Defined Fields listed below.
+
+    **Rules for Mapping:**
+    1.  **Accuracy:** Do not guess. If a specific field cannot be determined with at least 80% confidence, return null or an empty string, do not hallucinate.
+    2.  **Formatting:** Ensure units of measure are standardized.
+    3.  **Strict Schema:** You must only output the fields requested in the JSON schema.
+
+    ### DESTINATION SCHEMA (User-Defined Fields)
+    Please extract the following specific data points:
+    ${Object.keys(userDefinedSchema.properties || {}).map(key => `* **${key}**: ${userDefinedSchema.properties[key].description || "Extract this value"}`).join("\n")}
+
+    ### OUTPUT FORMAT
+    Provide the output in valid JSON format only, complying with the Response Schema.
   `;
 
     try {
