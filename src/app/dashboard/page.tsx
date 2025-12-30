@@ -42,7 +42,7 @@ export default async function DashboardPage() {
         <div className="max-w-7xl mx-auto p-8 font-sans">
             <div className="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
                 <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">Welcome to the SKU investigator</h1>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Welcome to the SKU investigator</h1>
                     <p className="text-slate-400 mt-2 text-lg">Manage your data extraction endpoints.</p>
                 </div>
                 <Link
