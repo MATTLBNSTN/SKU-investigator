@@ -1,15 +1,29 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #F8FAF9;
+  /* Very light sage/white tint */
+  --foreground: #0C3B2E;
+  /* Dark Green text */
+  --primary: #0C3B2E;
+  /* Dark Green */
+  --secondary: #6D9773;
+  /* Sage Green */
+  --accent: #B46617;
+  /* Bronze */
+  --highlight: #FFBA00;
+  /* Gold */
 }
 
 
