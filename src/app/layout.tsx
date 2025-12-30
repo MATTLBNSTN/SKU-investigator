@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Anti Gravity",
-  description: "AI-Powered API Generator",
+  title: "SKU Investigator",
+  description: "AI-Powered Product Data Extraction",
 };
 
 export default function RootLayout({
