@@ -40,10 +40,10 @@ export default async function DashboardPage() {
 
     return (
         <div className="max-w-7xl mx-auto p-8 font-sans">
-            <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
+            <div className="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
                 <div>
                     <h1 className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">Welcome to the SKU investigator</h1>
-                    <p className="text-slate-500 mt-2 text-lg">Manage your data extraction endpoints.</p>
+                    <p className="text-slate-400 mt-2 text-lg">Manage your data extraction endpoints.</p>
                 </div>
                 <Link
                     href="/dashboard/new"
@@ -55,28 +55,28 @@ export default async function DashboardPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {apis.map((api) => (
-                    <div key={api.id} className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-200 overflow-hidden flex flex-col h-full">
+                    <div key={api.id} className="group bg-[var(--card-bg)] rounded-xl border border-white/10 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-200 overflow-hidden flex flex-col h-full">
                         <div className="p-6 flex flex-col h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <h2 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{api.name}</h2>
+                                <h2 className="text-lg font-bold text-slate-100 group-hover:text-blue-600 transition-colors">{api.name}</h2>
                                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide ${api.is_active ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
                                     {api.is_active ? 'Active' : 'Inactive'}
                                 </span>
                             </div>
 
                             <div className="mb-4">
-                                <div className="inline-block bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs font-mono text-slate-600">
+                                <div className="inline-block bg-white/5 border border-white/10 rounded px-2 py-1 text-xs font-mono text-slate-400">
                                     /{api.slug}
                                 </div>
                             </div>
 
-                            <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
+                            <p className="text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
                                 {api.description || "No description provided."}
                             </p>
 
-                            <div className="pt-4 border-t border-slate-50 mt-auto flex justify-between items-center">
+                            <div className="pt-4 border-t border-white/10 mt-auto flex justify-between items-center">
                                 <span className="text-xs text-slate-400">v{api.version}</span>
-                                <Link href={`/dashboard/${api.id}`} className="text-sm font-medium text-slate-700 hover:text-blue-600 hover:underline transition-colors flex items-center">
+                                <Link href={`/dashboard/${api.id}`} className="text-sm font-medium text-slate-300 hover:text-blue-600 hover:underline transition-colors flex items-center">
                                     Manage API &rarr;
                                 </Link>
                             </div>
@@ -85,13 +85,13 @@ export default async function DashboardPage() {
                 ))}
 
                 {apis.length === 0 && (
-                    <div className="col-span-full flex flex-col items-center justify-center py-16 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                        <div className="p-4 bg-white rounded-full shadow-sm mb-4">
+                    <div className="col-span-full flex flex-col items-center justify-center py-16 border-2 border-dashed border-white/10 rounded-xl bg-white/5/50">
+                        <div className="p-4 bg-[var(--card-bg)] rounded-full shadow-sm mb-4">
                             {/* You might want a Lucid icon here if available, defaulting to text */}
                             <span className="text-2xl">⚡</span>
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-900 mb-1">No APIs defined yet</h3>
-                        <p className="text-slate-500 mb-6 text-sm">Create your first schema to start extracting data.</p>
+                        <h3 className="text-lg font-semibold text-slate-100 mb-1">No APIs defined yet</h3>
+                        <p className="text-slate-400 mb-6 text-sm">Create your first schema to start extracting data.</p>
                         <Link
                             href="/dashboard/new"
                             className="text-blue-600 font-medium hover:underline"
