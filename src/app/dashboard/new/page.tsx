@@ -65,7 +65,8 @@ export default function NewApiPage() {
             input_inputs: ["sku"], // Hardcoded requirement
             output_schema: {
                 type: "object",
-                properties: outputProperties
+                properties: outputProperties,
+                required: Object.keys(outputProperties) // Enforce strict schema
             }
         };
 

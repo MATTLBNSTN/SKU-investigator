@@ -35,6 +35,12 @@ export async function executeAntiGravityApi({ orgId, apiSlug, payload }: Executi
     // ensuring the output is always perfect JSON matching their needs.
     const userDefinedSchema = apiConfig.schema_config.output_schema;
 
+    // PATCH: Force all fields to be required to prevent partial extraction
+    // This ensures existing APIs in the DB work without migration
+    if (userDefinedSchema.type === 'object' && userDefinedSchema.properties && !userDefinedSchema.required) {
+        userDefinedSchema.required = Object.keys(userDefinedSchema.properties);
+    }
+
     const generationConfig = {
         responseMimeType: "application/json",
         responseSchema: userDefinedSchema,
