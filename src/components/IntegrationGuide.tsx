@@ -13,7 +13,7 @@ interface IntegrationGuideProps {
 export default function IntegrationGuide({ apiSlug, apiKey, fields, inputParams = ['sku'] }: IntegrationGuideProps) {
     const [copied, setCopied] = useState(false);
 
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com';
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     const endpoint = `${baseUrl}/api/gravity/run`;
 
     // Build dynamic payload based on input requirements
