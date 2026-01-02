@@ -22,13 +22,13 @@ export default function ApiTester({ apiSlug, fieldDefinitions }: ApiTesterProps)
         setResult(null);
 
         try {
-            const response = await fetch('/api/gravity/run', {
-                method: 'POST',
+            const params = new URLSearchParams();
+            params.append('apiSlug', apiSlug);
+            params.append('sku', sku); // Assuming single input for now based on UI state
+
+            const response = await fetch(`/api/gravity/run?${params.toString()}`, {
+                method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    apiSlug: apiSlug,
-                    payload: { sku: sku }
-                })
             });
 
             const data = await response.json();

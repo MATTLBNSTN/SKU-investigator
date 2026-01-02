@@ -16,21 +16,17 @@ export default function IntegrationGuide({ apiSlug, apiKey, fields, inputParams 
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     const endpoint = `${baseUrl}/api/gravity/run`;
 
-    // Build dynamic payload based on input requirements
-    const dynamicPayload: Record<string, string> = {};
+    // Build query params
+    const params = new URLSearchParams();
+    params.append('apiSlug', apiSlug);
     inputParams.forEach(param => {
-        dynamicPayload[param] = `EXAMPLE-${param.toUpperCase()}-123`;
+        params.append(param, `EXAMPLE-${param.toUpperCase()}-123`);
     });
 
-    const samplePayload = {
-        apiSlug: apiSlug,
-        payload: dynamicPayload
-    };
+    const fullUrl = `${endpoint}?${params.toString()}`;
 
-    const curlCommand = `curl -X POST ${endpoint} \\
-  -H "Content-Type: application/json" \\
-  -H "x-api-key: ${apiKey}" \\
-  -d '${JSON.stringify(samplePayload, null, 2)}'`;
+    const curlCommand = `curl -X GET "${fullUrl}" \\
+  -H "x-api-key: ${apiKey}"`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(curlCommand);
